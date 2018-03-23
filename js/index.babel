@@ -25,13 +25,16 @@ d3.json(url, (error, data) => {
 		w = 1000 - padding.left - padding.right,
 		h = 550 - padding.top - padding.bottom;
 
+	const width = w / years.length,
+		height = h / 12; // 12 being number of months in a year
+	console.log("dimensions", h, w, width, height);
 	//Set scaling
 
 	const ymin = d3.min(variance),
 		ymax = d3.max(variance);
 
-	const xmin = d3.min(years),
-		xmax = d3.max(years);
+	const xmin = new Date(d3.min(years), 0),
+		xmax = new Date(d3.max(years), 0);
 	console.log("minmax", ymin, ymax, xmin, xmax);
 	const xScale = d3.scaleLinear()
 		.domain([maxSlower, minSlower]) // Note here that graph goes from max to min
