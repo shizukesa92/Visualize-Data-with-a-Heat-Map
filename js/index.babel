@@ -2,6 +2,72 @@ const url = "https://raw.githubusercontent.com/FreeCodeCamp/ProjectReferenceData
 
 d3.json(url, (error, data) => {
 	if (error) throw error;
-	console.log(data);
+	const variance = data.monthlyVariance;
+	console.log("variance", variance);
 
+	var years = variance.map(data => data.year),
+		years = years.filter((data, index) =>
+			years.indexOf(data) == index
+		); // For x-axis, returns list of unique year values for entire array of objects, filtering out the duplicates
+	console.log("years", years);
+
+	// Relative height and width of the SVG. Actual height and width are defined within CSS and not appended (contrary to what FCC tutorial taught) 
+	// Note 2:1 ratio because container ratio is roughly 2:1
+	const padding = {
+			top: 50,
+			bottom: 50,
+			left: 100,
+			right: 10
+		},
+		w = 1000 - padding.left - padding.right,
+		h = 550 - padding.top - padding.bottom;
+
+	//Set scaling
+
+
+	const xScale = d3.scaleLinear()
+		.domain([maxSlower, minSlower]) // Note here that graph goes from max to min
+		.range([0, w]);
+
+
+	const yScale = d3.scaleLinear()
+		.domain([maxPlace, minPlace]) // Note here that graph goes from max to min
+		.range([h, 0]);
+
+	const xAxis = d3.axisBottom(xScale),
+		yAxis = d3.axisLeft(yScale);
+
+	// Set SVG dimensions and append axes
+	let chart = d3.select("svg")
+		.attr("width", w + padding.right + padding.left)
+		.attr("height", h + padding.bottom + padding.top)
+
+	chart.append("g")
+		.attr("transform", `translate(${padding.left},${h+padding.top})`)
+		.call(xAxis)
+
+	chart.append("g")
+		.attr("transform", `translate(${padding.left},${padding.top})`)
+		.call(yAxis)
+
+	//Labels
+	chart.append("text") // Title
+		.attr("x", (w / 2))
+		.attr("dx", "8em")
+		.attr("y", padding.top)
+		.attr("text-anchor", "middle")
+		.text("35 Fastest times up Alpe d'Huez Normalized to 13.8km distance")
+
+	chart.append("text") // X-axis
+		.attr("transform", `translate(${(w+padding.right+padding.left)/2},${h+padding.bottom+padding.top})`)
+		.style("text-anchor", "middle")
+		.text("Seconds Behind Fastest Time");
+
+	chart.append("text") // Y axis
+		.attr("transform", "rotate(-90)")
+		.attr("y", padding.left + padding.right)
+		.attr("x", 0 - ((h + padding.top + padding.bottom) / 2))
+		.attr("dy", "-3em")
+		.style("text-anchor", "middle")
+		.text("Ranking");
 });
