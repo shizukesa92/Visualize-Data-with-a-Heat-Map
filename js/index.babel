@@ -2,14 +2,17 @@ const url = "https://raw.githubusercontent.com/FreeCodeCamp/ProjectReferenceData
 
 d3.json(url, (error, data) => {
 	if (error) throw error;
-	const variance = data.monthlyVariance;
-	console.log("variance", variance);
+	const datalist = data.monthlyVariance;
+	console.log("variance", data);
 
-	var years = variance.map(data => data.year),
-		years = years.filter((data, index) =>
-			years.indexOf(data) == index
+	var years = datalist.map(obj => obj.year),
+		years = years.filter((duplicate, index) =>
+			years.indexOf(duplicate) == index
 		); // For x-axis, returns list of unique year values for entire array of objects, filtering out the duplicates
 	console.log("years", years);
+	const variance = datalist.map(obj => obj.variance);
+	console.log("variance", variance)
+
 
 	// Relative height and width of the SVG. Actual height and width are defined within CSS and not appended (contrary to what FCC tutorial taught) 
 	// Note 2:1 ratio because container ratio is roughly 2:1
@@ -24,7 +27,12 @@ d3.json(url, (error, data) => {
 
 	//Set scaling
 
+	const ymin = d3.min(variance),
+		ymax = d3.max(variance);
 
+	const xmin = d3.min(years),
+		xmax = d3.max(years);
+	console.log("minmax", ymin, ymax, xmin, xmax);
 	const xScale = d3.scaleLinear()
 		.domain([maxSlower, minSlower]) // Note here that graph goes from max to min
 		.range([0, w]);
