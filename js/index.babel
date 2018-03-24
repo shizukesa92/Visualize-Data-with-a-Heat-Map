@@ -1,4 +1,5 @@
-const url = "https://raw.githubusercontent.com/FreeCodeCamp/ProjectReferenceData/master/global-temperature.json";
+const url = "https://raw.githubusercontent.com/FreeCodeCamp/ProjectReferenceData/master/global-temperature.json",
+	months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 d3.json(url, (error, data) => {
 	if (error) throw error;
@@ -17,16 +18,16 @@ d3.json(url, (error, data) => {
 	// Relative height and width of the SVG. Actual height and width are defined within CSS and not appended (contrary to what FCC tutorial taught) 
 	// Note 2:1 ratio because container ratio is roughly 2:1
 	const padding = {
-			top: 50,
+			top: 0,
 			bottom: 50,
 			left: 100,
 			right: 10
 		},
-		w = 1000 - padding.left - padding.right,
+		w = 1200 - padding.left - padding.right,
 		h = 550 - padding.top - padding.bottom;
 
 	const width = w / years.length,
-		height = h / 12; // 12 being number of months in a year
+		height = h / months.length;
 	console.log("dimensions", h, w, width, height);
 	//Set scaling
 
@@ -36,13 +37,13 @@ d3.json(url, (error, data) => {
 	const xmin = new Date(d3.min(years), 0),
 		xmax = new Date(d3.max(years), 0);
 	console.log("minmax", ymin, ymax, xmin, xmax);
-	const xScale = d3.scaleLinear()
-		.domain([maxSlower, minSlower]) // Note here that graph goes from max to min
+	const xScale = d3.scaleTime()
+		.domain([xmin, xmax]) // Note here that graph goes from max to min
 		.range([0, w]);
 
 
 	const yScale = d3.scaleLinear()
-		.domain([maxPlace, minPlace]) // Note here that graph goes from max to min
+		.domain([ymax, ymin]) // Note here that graph goes from max to min
 		.range([h, 0]);
 
 	const xAxis = d3.axisBottom(xScale),
@@ -62,17 +63,11 @@ d3.json(url, (error, data) => {
 		.call(yAxis)
 
 	//Labels
-	chart.append("text") // Title
-		.attr("x", (w / 2))
-		.attr("dx", "8em")
-		.attr("y", padding.top)
-		.attr("text-anchor", "middle")
-		.text("35 Fastest times up Alpe d'Huez Normalized to 13.8km distance")
 
 	chart.append("text") // X-axis
 		.attr("transform", `translate(${(w+padding.right+padding.left)/2},${h+padding.bottom+padding.top})`)
 		.style("text-anchor", "middle")
-		.text("Seconds Behind Fastest Time");
+		.text("Years");
 
 	chart.append("text") // Y axis
 		.attr("transform", "rotate(-90)")
@@ -80,5 +75,5 @@ d3.json(url, (error, data) => {
 		.attr("x", 0 - ((h + padding.top + padding.bottom) / 2))
 		.attr("dy", "-3em")
 		.style("text-anchor", "middle")
-		.text("Ranking");
+		.text("Months");
 });
