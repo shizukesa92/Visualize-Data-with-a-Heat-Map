@@ -72,47 +72,49 @@ d3.json(url, (error, data) => {
 		.style("text-anchor", "middle")
 		.text("Months");
 
-	/* Data rendering
+	// Data rendering
+	var tooltips = d3.select("#chart").append("div")
+		.attr("class", "tooltip")
+		.style("opacity", 0);
+
+
 	let graph = chart.selectAll("rect")
-		.data(variance, d => d.year + ':' + d.month)
+		.data(datalist, d => d.year + ':' + d.month)
 		.enter()
 		.append("rect")
-		.attr("x", d => (d.year - xmin) * width)
+		.attr("x", d => (d.year - d3.min(years)) * width + padding.left)
 		.attr("y", d => (d.month - 1) * height)
 		.attr("rx", 0)
 		.attr("ry", 0)
 		.attr("width", width)
 		.attr("height", height)
 		.style("fill", "white")
-		.on("mouseover", function(d) {
-			div.transition()
+		.on("mouseover", d => {
+			tooltips.transition()
 				.duration(100)
 				.style("opacity", 0.8);
-			div.html("<span class='year'>" + d.year + " - " + month[d.month - 1] + "</span><br>" +
-					"<span class='temperature'>" + (Math.floor((d.variance + baseTemp) * 1000) / 1000) + " &#8451" + "</span><br>" +
-					"<span class='variance'>" + d.variance + " &#8451" + "</span>")
-				.style("left", (d3.event.pageX - ($('.tooltip').width() / 2)) + "px")
-				.style("top", (d3.event.pageY - 75) + "px");
+			tooltips.html("<span>" + d.year + " - " + months[d.month - 1] + "</span><br>" +
+					"<span" + (Math.floor((d.variance + data.baseTemperature) * 1000) / 1000) + " &#8451" + "</span><br>" +
+					"<span>" + d.variance + " &#8451" + "</span>")
+				.style("left", d3.event.pageX + 10 + "px")
+				.style("top", d3.event.pageY + +10 + "px")
 		})
-		.on("mouseout", function(d) {
-			div.transition()
+		.on("mouseout", d => {
+			tooltips.transition()
 				.duration(200)
 				.style("opacity", 0);
-		});
+		})
 
-	graph.transition().duration(1000)
-		.style("fill", function(d) {
-			return colorScale(d.variance + baseTemp);
-		});*/
 
 	// Legend
 	let colours = ["#5e4fa2", "#3288bd", "#66c2a5", "#abdda4", "#e6f598", "#ffffbf", "#fee08b", "#fdae61", "#f46d43", "#d53e4f", "#9e0142"];
-	let scale = d3.scaleQuantile()
+
+	let scale = d3.scaleQuantile() // https://github.com/d3/d3-scale#quantile-scales
 		.domain([ymin + data.baseTemperature, ymax + data.baseTemperature])
-		.range(colours);
+		.range(colours); // https://github.com/d3/d3-scale#quantile_range
 
 	let legend = chart.selectAll("legend")
-		.data([0].concat(scale.quantiles()), d => d)
+		.data([0].concat(scale.quantiles()), d => d) // https://github.com/d3/d3-scale#quantile_quantiles
 		.enter()
 
 	legend.append("rect")
@@ -126,4 +128,9 @@ d3.json(url, (error, data) => {
 		.text(d => Math.floor(d * 10) / 10)
 		.attr("x", (d, i) => (35 * i) + Math.floor(35 / 2) - 6 + (w - 35 * colours.length))
 		.attr("y", h + 35);
+
+	graph.transition().duration(1000)
+		.style("fill", d => scale(d.variance + data.baseTemperature));
+
+
 });

@@ -79,3 +79,13 @@ h3 {
 svg {
         align-self: flex-start;
 }
+
+.tooltip {
+        position: absolute;
+        width: auto;
+        height: auto;
+        padding: 0.5%;
+        background-color: black;
+        pointer-events: none;
+        color: white;
+}
