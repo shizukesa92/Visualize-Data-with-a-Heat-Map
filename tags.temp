@@ -1,0 +1,15 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+#chart	css\style.css	/^#chart {$/;"	i
+#footer	css\style.css	/^#footer b {$/;"	i
+#footer	css\style.css	/^#footer {$/;"	i
+#header	css\style.css	/^#header {$/;"	i
+#main	css\style.css	/^#main {$/;"	i
+.tooltip	css\style.css	/^.tooltip {$/;"	c
+body	css\style.css	/^body {$/;"	t
+h3	css\style.css	/^h3 {$/;"	t
+svg	css\style.css	/^svg {$/;"	t

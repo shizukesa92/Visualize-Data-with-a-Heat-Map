@@ -4,16 +4,12 @@ const url = "https://raw.githubusercontent.com/FreeCodeCamp/ProjectReferenceData
 d3.json(url, (error, data) => {
 	if (error) throw error;
 	const datalist = data.monthlyVariance;
-	console.log("variance", data);
 
 	var years = datalist.map(obj => obj.year),
 		years = years.filter((duplicate, index) =>
 			years.indexOf(duplicate) == index
 		); // For x-axis, returns list of unique year values for entire array of objects, filtering out the duplicates
-	console.log("years", years);
 	const variance = datalist.map(obj => obj.variance);
-	console.log("variance", variance)
-
 
 	// Relative height and width of the SVG. Actual height and width are defined within CSS and not appended (contrary to what FCC tutorial taught) 
 	// Note 2:1 ratio because container ratio is roughly 2:1
@@ -24,11 +20,10 @@ d3.json(url, (error, data) => {
 			right: 10
 		},
 		w = 1200 - padding.left - padding.right,
-		h = 550 - padding.top - padding.bottom;
+		h = 450 - padding.top - padding.bottom;
 
 	const width = w / years.length,
 		height = h / months.length;
-	console.log("dimensions", h, w, width, height);
 	//Set scaling
 
 	const ymin = d3.min(variance),
@@ -36,36 +31,36 @@ d3.json(url, (error, data) => {
 
 	const xmin = new Date(d3.min(years), 0),
 		xmax = new Date(d3.max(years), 0);
-	console.log("minmax", ymin, ymax, xmin, xmax);
+
 	const xScale = d3.scaleTime()
 		.domain([xmin, xmax]) // Note here that graph goes from max to min
 		.range([0, w]);
 
-
-	const yScale = d3.scaleLinear()
-		.domain([ymax, ymin]) // Note here that graph goes from max to min
-		.range([h, 0]);
-
-	const xAxis = d3.axisBottom(xScale),
-		yAxis = d3.axisLeft(yScale);
+	const xAxis = d3.axisBottom(xScale);
 
 	// Set SVG dimensions and append axes
 	let chart = d3.select("svg")
 		.attr("width", w + padding.right + padding.left)
 		.attr("height", h + padding.bottom + padding.top)
 
+	let yAxis = chart.selectAll("text")
+		.data(months)
+		.enter()
+		.append("text")
+		.text(d => d)
+		.attr("x", 0)
+		.attr("y", (d, i) => i * height)
+		.style("text-anchor", "end")
+		.attr("transform", `translate(${padding.left},${height / 1.5})`)
+
 	chart.append("g")
 		.attr("transform", `translate(${padding.left},${h+padding.top})`)
 		.call(xAxis)
 
-	chart.append("g")
-		.attr("transform", `translate(${padding.left},${padding.top})`)
-		.call(yAxis)
-
 	//Labels
-
 	chart.append("text") // X-axis
 		.attr("transform", `translate(${(w+padding.right+padding.left)/2},${h+padding.bottom+padding.top})`)
+		.attr("dy", "-1em")
 		.style("text-anchor", "middle")
 		.text("Years");
 
@@ -73,7 +68,62 @@ d3.json(url, (error, data) => {
 		.attr("transform", "rotate(-90)")
 		.attr("y", padding.left + padding.right)
 		.attr("x", 0 - ((h + padding.top + padding.bottom) / 2))
-		.attr("dy", "-3em")
+		.attr("dy", "-5em")
 		.style("text-anchor", "middle")
 		.text("Months");
+
+	/* Data rendering
+	let graph = chart.selectAll("rect")
+		.data(variance, d => d.year + ':' + d.month)
+		.enter()
+		.append("rect")
+		.attr("x", d => (d.year - xmin) * width)
+		.attr("y", d => (d.month - 1) * height)
+		.attr("rx", 0)
+		.attr("ry", 0)
+		.attr("width", width)
+		.attr("height", height)
+		.style("fill", "white")
+		.on("mouseover", function(d) {
+			div.transition()
+				.duration(100)
+				.style("opacity", 0.8);
+			div.html("<span class='year'>" + d.year + " - " + month[d.month - 1] + "</span><br>" +
+					"<span class='temperature'>" + (Math.floor((d.variance + baseTemp) * 1000) / 1000) + " &#8451" + "</span><br>" +
+					"<span class='variance'>" + d.variance + " &#8451" + "</span>")
+				.style("left", (d3.event.pageX - ($('.tooltip').width() / 2)) + "px")
+				.style("top", (d3.event.pageY - 75) + "px");
+		})
+		.on("mouseout", function(d) {
+			div.transition()
+				.duration(200)
+				.style("opacity", 0);
+		});
+
+	graph.transition().duration(1000)
+		.style("fill", function(d) {
+			return colorScale(d.variance + baseTemp);
+		});*/
+
+	// Legend
+	let colours = ["#5e4fa2", "#3288bd", "#66c2a5", "#abdda4", "#e6f598", "#ffffbf", "#fee08b", "#fdae61", "#f46d43", "#d53e4f", "#9e0142"];
+	let scale = d3.scaleQuantile()
+		.domain([ymin + data.baseTemperature, ymax + data.baseTemperature])
+		.range(colours);
+
+	let legend = chart.selectAll("legend")
+		.data([0].concat(scale.quantiles()), d => d)
+		.enter()
+
+	legend.append("rect")
+		.attr("x", (d, i) => 35 * i + (w - 35 * colours.length))
+		.attr("y", h + 35)
+		.attr("width", 35)
+		.attr("height", height / 2)
+		.style("fill", (d, i) => colours[i]);
+
+	legend.append("text")
+		.text(d => Math.floor(d * 10) / 10)
+		.attr("x", (d, i) => (35 * i) + Math.floor(35 / 2) - 6 + (w - 35 * colours.length))
+		.attr("y", h + 35);
 });
